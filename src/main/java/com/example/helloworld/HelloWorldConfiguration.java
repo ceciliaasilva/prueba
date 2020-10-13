@@ -4,14 +4,18 @@ import com.example.helloworld.core.Template;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
-import javax.validation.constraints.NotEmpty;
+import io.dropwizard.db.DatabaseConfiguration;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.constraints.NotEmpty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.Map;
 
+@Slf4j
 public class HelloWorldConfiguration extends Configuration {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HelloWorldConfiguration.class);
     @NotEmpty
     private String template;
 
@@ -21,9 +25,6 @@ public class HelloWorldConfiguration extends Configuration {
     @Valid
     @NotNull
     private DataSourceFactory database = new DataSourceFactory();
-
-    @NotNull
-    private Map<String, Map<String, String>> viewRendererConfiguration = Collections.emptyMap();
 
     @JsonProperty
     public String getTemplate() {
@@ -49,23 +50,21 @@ public class HelloWorldConfiguration extends Configuration {
         return new Template(template, defaultName);
     }
 
+    /**
+     * This gets called with the values from the Dropwizard example.xmp, but we want to override it with the values
+     * from the Heroku DATABASE_URL environment variable.
+     */
     @JsonProperty("database")
     public DataSourceFactory getDataSourceFactory() {
+        LOGGER.info("Dropwizard dummy DB URL (will be overridden)=" + database.getUrl());
+        DatabaseConfiguration databaseConfiguration = ExampleDatabaseConfiguration.create(System.getenv("DATABASE_URL"));
+        database = databaseConfiguration.getDataSourceFactory(null);
+        LOGGER.info("Heroku DB URL=" + database.getUrl());
         return database;
     }
 
     @JsonProperty("database")
     public void setDataSourceFactory(DataSourceFactory dataSourceFactory) {
         this.database = dataSourceFactory;
-    }
-
-    @JsonProperty("viewRendererConfiguration")
-    public Map<String, Map<String, String>> getViewRendererConfiguration() {
-        return viewRendererConfiguration;
-    }
-
-    @JsonProperty("viewRendererConfiguration")
-    public void setViewRendererConfiguration(Map<String, Map<String, String>> viewRendererConfiguration) {
-        this.viewRendererConfiguration = viewRendererConfiguration;
     }
 }

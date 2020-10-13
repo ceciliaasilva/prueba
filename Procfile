@@ -1,1 +1,1 @@
-web: java -jar target/dropwizard-example-1.0.0-SNAPSHOT.jar
+web: java $JAVA_OPTS -jar target/dropwizard-example-0.7.0.jar db migrate example.yml && java $JAVA_OPTS -Ddw.server.connector.port=$PORT -jar target/dropwizard-example-0.7.0.jar server example.yml
