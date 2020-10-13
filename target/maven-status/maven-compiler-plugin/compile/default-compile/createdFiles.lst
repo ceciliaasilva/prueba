@@ -1,0 +1,5 @@
+com/sample/HerokuRestResource.class
+com/sample/HerokuConfiguration.class
+com/sample/healthcheck/HerokuHealthCheck.class
+com/sample/HerokuApplication.class
+com/sample/pojo/Person.class
